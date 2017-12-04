@@ -120,6 +120,12 @@ def menu_eleve() :
 		action=input()
 
 	return action
+
+
+def retour_menu_utilisateur() :
+	etat = 1
+	return etat
+
 etat = 1
 
 while etat == 1 : 
@@ -201,8 +207,9 @@ while etat == 1 :
 				
 				
 					if recherche == 4 :
+						recherche = 6
+						action = 6
 						etat = 2
-						type =1
 		
 
 

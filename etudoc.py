@@ -6,25 +6,38 @@ from __future__ import print_function
 import cx_Oracle
 import os
 import sys
+import time
+import datetime
 
 pathlocal = os.getcwd() + '/'
 
 connection = cx_Oracle.connect("na17a013","txtAAC0I","sme-oracle.sme.utc/nf26")
 
+
+#fonction pour archiver un document
 def archive_doc() :
 	print("vous souhaitez archiver un document, voici la liste des documents qui ne sont pas encore archivés")
 
 	cursor = connection.cursor()
-	cursor.execute(""" SELECT iddoc, titre FROM Documents WHERE archivedoc <> 'Y' """)
-	for row in cursor:
-		print("iddoc : {:20s} Titre: {:100s}".format(row[0], row[1]))
-	print("Selectionnez le document que vous souhaitez archiver")
-	doc=input()
+	cursor.execute("""SELECT COUNT (*) FROM( SELECT iddoc, titre FROM Documents WHERE archivedoc <> 'Y') """)
+	count = cursor.fetchall()[0][0]
+	if count == 0 :
+		print("Il n'y a pas de documents à afficher")
+		return 0
+	else : 
+		cursor = connection.cursor()
+		cursor.execute(""" SELECT iddoc, titre FROM Documents WHERE archivedoc <> 'Y' """)
+		for row in cursor:
+			print("iddoc : {:20s} Titre: {:100s}".format(row[0], row[1]))
+		print("Selectionnez le document que vous souhaitez archiver")
+		doc=input()
 
-	cursor.execute("UPDATE Documents SET archivedoc='Y' WHERE iddoc = :idoc", idoc=doc)
+		cursor.execute("UPDATE Documents SET archivedoc='Y' WHERE iddoc = :idoc", idoc=doc)
 
-	cursor.close()
-	connection.commit()
+		cursor.close()
+		connection.commit()
+
+#fonction pour ajouter une licence
 
 def ajout_licence() : 
 	print("Vous souhaitez ajouter un licence, voici les licences déjà existantes \n")
@@ -53,6 +66,8 @@ def ajout_licence() :
 	connection.commit()
 
 
+#fonction pour ajouter une catégorie
+
 def ajout_categorie() :
 	print("vous souhaitez ajouter une categorie \n")
 
@@ -79,23 +94,139 @@ def ajout_categorie() :
 	print("L'insertion à été réalisée correctement")
 	connection.commit()
 
+
+#fonction pour enlever un document de l'archive
+
 def retour_archive() : 
 	print("Vous souhaitez retirer un document de l'archive \n")
 
 	cursor = connection.cursor()
-	cursor.execute(""" SELECT iddoc, titre FROM Documents WHERE archivedoc <> 'N' """)
-	for row in cursor:
-		print("iddoc : {:20s} Titre: {:100s}".format(row[0], row[1]))
+	cursor.execute("""SELECT COUNT (*) FROM( SELECT iddoc, titre FROM Documents WHERE archivedoc <> 'Y') """)
+	count = cursor.fetchall()[0][0]
+	if count > 0 : 
+		cursor=connection.cursor()
+		cursor.execute(""" SELECT iddoc, titre FROM Documents WHERE archivedoc <> 'N' """)
+		for row in cursor:
+			print("iddoc : {:20s} Titre: {:100s}".format(row[0], row[1]))
 
-	print("Selectionnez le document que vous souhaitez archiver")
+		print("Selectionnez le document que vous souhaitez archiver")
+		doc=input()
+
+		cursor.execute("UPDATE Documents SET archivedoc='N' WHERE iddoc = :idoc", idoc=doc)
+
+		cursor.close()
+		connection.commit()
+	else : 
+		print("Il n'y a pas encore de documents archivés")
+
+
+#fonction pour imprimer les informations sur un document
+def info_doc() : 
+	print("Selectionnez l'id du documents sur lequel vous souhaitez obtenir plus d'informations")
 	doc=input()
+	cursor = connection.cursor()
+	cursor.execute("SELECT d.iddoc FROM Documents d WHERE d.iddoc= :idoc ", idoc=doc)
 
-	cursor.execute("UPDATE Documents SET archivedoc='N' WHERE iddoc = :idoc", idoc=doc)
+	for row in cursor:
+		print("id :" ,row)
 
-	cursor.close()
-	connection.commit()
+	cursor.execute("SELECT d.titre FROM Documents d WHERE d.iddoc= :idoc ", idoc=doc)
+
+	for row in cursor:
+		print("titre :" ,row)
+
+	cursor.execute("SELECT date_pb FROM Documents d WHERE d.iddoc= :idoc ", idoc=doc)
+
+	for row in cursor:
+		print("date de publication :" ,row)
+
+	cursor.execute("SELECT description FROM Documents d WHERE d.iddoc= :idoc ", idoc=doc)
+
+	for row in cursor:
+		print("description :" ,row)
+
+	cursor.execute("SELECT aut.Etudiant.nom, aut.Etudiant.prenom FROM Documents d, TABLE(d.auteur) aut WHERE d.iddoc=:idoc ", idoc=doc)
+
+	for row in cursor:
+		print("Nom de l'auteur : {:50} Prénom de l'auteur : {:50}" .format(row[0], row[1]))
+
+	cursor.execute("SELECT ens.Enseignant.nom, ens.Enseignant.prenom FROM Documents d, TABLE(d.professeur) ens WHERE d.iddoc=:idoc ", idoc=doc)
+
+	for row in cursor:
+		print("Nom de l'enseignant : {:50} Prénom de l'enseignant ; {:50}" .format(row[0], row[1]))
+
+	cursor.execute("SELECT l.Licence.nom FROM Documents d, TABLE(d.licencedoc) l WHERE d.iddoc=:idoc ", idoc=doc)
+
+	for row in cursor:
+		print("Licence : {:50} " .format(row[0]))
+	
+	cursor.execute("SELECT m.refMotCle.mot_cle FROM Documents d, TABLE(d.motCle) m WHERE d.iddoc=:idoc ", idoc=doc)
+	print("Mots-clé associés : ")
+	for row in cursor:
+		print(" {:50} " .format(row[0]))
 
 
+#fonction pour ajouter un document !!! PAS FINI
+def ajout_doc() :
+	print("Vous souhaitez ajouter un document \n")
+	cursor = connection.cursor()
+	cursor.execute("SELECT MAX(d.iddoc) FROM Documents d")#l'id du nouveau document sera l'id max des documents actuel +1
+	for row in cursor:
+		iddocc=int(row[0])+1
+		titre=raw_input("Donnez le titre de votre document : ")
+		des=raw_input("Donnez la description de votre document : ")
+		date=datetime.date.today()
+		# A COMPLETER
+
+#fonction pour rechercher des documents par catégorie
+
+def recherche_cat() :
+	cursor = connection.cursor()
+	cursor.execute("select * from categorie")
+	for row in cursor:
+		print(" Categorie:", row)
+	print("Ecrivez le nom de la categorie dans laquelle vous souhaitez rechercher un document")
+	cat=raw_input()
+	cursor.execute("SELECT COUNT (*) FROM( SELECT d.iddoc, d.titre FROM Documents d WHERE d.categorie.nom='"+cat+"' AND archivedoc <> 'Y') ")
+	count = cursor.fetchall()[0][0]
+	if count > 0 :
+		sel_cat=("SELECT d.iddoc, d.titre FROM Documents d WHERE d.categorie.nom='"+cat+"' AND d.archivedoc <> 'Y'")
+		cursor = connection.cursor()
+		cursor.execute(sel_cat)
+					
+		for row in cursor:
+			print("iddoc : {:20s} Titre: {:100s}".format(row[0], row[1]))
+		info_doc()
+		
+	else : 	
+		print("Il n'y a pas de documents à afficher")
+
+#fonction de recherche par mot clé !! PAS FINI
+def recherche_mot_cle() :
+	cursor = connection.cursor()
+	cursor.execute("select * from MotCle")
+	i=0					
+	for row in cursor:
+		print("numéro : ", i, " Mot Clé:", row)
+		i=i+1
+	print("Entrez le mot clé qui vous interesse")
+	#A COMPLETER
+
+#fonction de recherche par semestre !! PAS FINI
+def recherche_semestre() :
+	saison = raw_input('Entrez la saison (P ou A) : ')
+	annee=raw_input("entrez l'année (ex : 2017) : ")
+
+	sel_semestre=("SELECT nom FROM Documents d WHERE d.semestredoc.saison='"+saison+"' AND d.semestredoc.annee='" +annee+ "')")
+	cursor = connection.cursor()
+	cursor.execute(sel_semestre)
+		
+	for row in cursor:
+		print(row)
+	#A COMPLETER
+
+		
+#fonction pour afficher le menu de choix entre admin ou eleve
 def menu_personne() :
 	print("Vous êtes un : \n 0- administrateur \n 1- un élève/prof ... \n 2-vous voulez quitter")
 	type=input()
@@ -105,10 +236,14 @@ def menu_personne() :
 
 	return type
 
+
+#fonction pour afficher les fonctions que l'admin peut réaliser
 def menu_admin() : 
 	print("Voici les différentes actions que vous pouvez réaliser : \n 0- archiver un document \n 1- ajouter une licence \n 2- ajouter une categorie\n 3-retirer un document de l'archive \n 4-quitter le mode administrateur \n entrez le numéro de l'action que vous souhaitez réaliser")
 	action=input()
 	return action
+
+#fonction pour afficher les fonctions qu'un utilisateur CAS peut réaliser
 
 def menu_eleve() : 
 	print("voici les différentes actions que vous pouvez réaliser : \n 0 - ajouter un document \n 1-rechercher un document \n 2-quitter le mode utilisateur")
@@ -122,18 +257,16 @@ def menu_eleve() :
 	return action
 
 
-def retour_menu_utilisateur() :
-	etat = 1
-	return etat
+#corps du programme principale
 
 etat = 1
 
-while etat == 1 : 
+while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
 	type=menu_personne()
 	etat = 2
-	while etat == 2 : 
+	while etat == 2 : #etat 2 = on choisi un action a réaliser en fonction des fonctions qui nous sont proposées
 
-		if type == 0 : 
+		if type == 0 : #partie admin
 			action=menu_admin()
 
 			#l'action demandée n'existe pas
@@ -160,13 +293,12 @@ while etat == 1 :
 		
 
 
-		if type == 1 :
+		if type == 1 : #partie user CAS
 			action=menu_eleve()
 			if action == 0 : 
-				print("Vous souhaitez ajouter un document")
-		
 
-#A FAIRE
+				ajout_doc()
+		
 
 			if action == 1 :
 				print("Vous souhaitez rechercher un document \n")
@@ -174,16 +306,12 @@ while etat == 1 :
 					print("Vous souhaitez faire une recherche par : \n 0-categorie \n 1- mot clé \n 2 - nom de l'auteur \n 3 - semestre \n 4 - retour au menu élève")
 					recherche = input()
 					if recherche == 0 :
-						cursor = connection.cursor()
-						cursor.execute("select * from categorie")
+						recherche_cat()
+					
 
-						i=0
-						for row in cursor:
-							print("numéro : ", i, " Categorie:", row)
-							i=i+1
-						print("Selectionnez le numéro de la categorie dans laquelle vous souhaitez rechercher un document")
-						cat=input()
 					if recherche == 1:
+						recherche_mot_cle()
+
 					#recherche par mot clé
 						exit()
 
@@ -194,16 +322,7 @@ while etat == 1 :
 
 					if recherche == 3 : 
 					#recherche par semestre
-						saison = raw_input('Entrez la saison (P ou A) : ')
-						annee=raw_input("entrez l'année (ex : 2017) : ")
-
-						sel_semestre=("SELECT nom FROM Documents d WHERE d.semestredoc.saison='"+saison+"' AND d.semestredoc.annee='" +annee+ "')")
-
-						cursor = connection.cursor()
-						cursor.execute(sel_semestre)
-					
-						for row in cursor:
-	   						print(row)
+						recherche_semestre()
 				
 				
 					if recherche == 4 :

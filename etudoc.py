@@ -24,7 +24,7 @@ def archive_doc() :
 	if count == 0 :
 		print("Il n'y a pas de documents à afficher")
 		return 0
-	else : 
+	else :
 		cursor = connection.cursor()
 		cursor.execute(""" SELECT iddoc, titre FROM Documents WHERE archivedoc <> 'Y' """)
 		for row in cursor:
@@ -39,7 +39,7 @@ def archive_doc() :
 
 #fonction pour ajouter une licence
 
-def ajout_licence() : 
+def ajout_licence() :
 	print("Vous souhaitez ajouter un licence, voici les licences déjà existantes \n")
 	cursor = connection.cursor()
 	cursor.execute("select * from licence")
@@ -52,7 +52,7 @@ def ajout_licence() :
 	cursor = connection.cursor()
 	add_licence=("INSERT INTO Licence(code, nom) VALUES( '" + code + "', '"+des+"')")
 
-	try : 
+	try :
 		cursor.execute(add_licence)
 
 	except  cx_Oracle.DatabaseError as exc:
@@ -60,7 +60,7 @@ def ajout_licence() :
 		if error.code == 1:
  			print("L'élement existe déjà dans la base de données")
 			exit()
-	finally : 
+	finally :
 		cursor.close()
 	print("L'insertion à été réalisée correctement")
 	connection.commit()
@@ -81,7 +81,7 @@ def ajout_categorie() :
 	cursor = connection.cursor()
 	add_cat=("INSERT INTO Categorie(nom) VALUES( '" + nom + "')")
 
-	try : 
+	try :
 		cursor.execute(add_cat)
 
 	except  cx_Oracle.DatabaseError as exc:
@@ -89,7 +89,7 @@ def ajout_categorie() :
     		if error.code == 1:
     			print("L'élement existe déjà dans la base de données")
 			exit()
-	finally : 
+	finally :
 		cursor.close()
 	print("L'insertion à été réalisée correctement")
 	connection.commit()
@@ -97,13 +97,13 @@ def ajout_categorie() :
 
 #fonction pour enlever un document de l'archive
 
-def retour_archive() : 
+def retour_archive() :
 	print("Vous souhaitez retirer un document de l'archive \n")
 
 	cursor = connection.cursor()
-	cursor.execute("""SELECT COUNT (*) FROM( SELECT iddoc, titre FROM Documents WHERE archivedoc <> 'Y') """)
+	cursor.execute("""SELECT COUNT (*) FROM( SELECT iddoc, titre FROM Documents WHERE archivedoc <> 'N') """)
 	count = cursor.fetchall()[0][0]
-	if count > 0 : 
+	if count > 0 :
 		cursor=connection.cursor()
 		cursor.execute(""" SELECT iddoc, titre FROM Documents WHERE archivedoc <> 'N' """)
 		for row in cursor:
@@ -116,12 +116,12 @@ def retour_archive() :
 
 		cursor.close()
 		connection.commit()
-	else : 
+	else :
 		print("Il n'y a pas encore de documents archivés")
 
 
 #fonction pour imprimer les informations sur un document
-def info_doc() : 
+def info_doc() :
 	print("Selectionnez l'id du documents sur lequel vous souhaitez obtenir plus d'informations")
 	doc=input()
 	cursor = connection.cursor()
@@ -159,7 +159,7 @@ def info_doc() :
 
 	for row in cursor:
 		print("Licence : {:50} " .format(row[0]))
-	
+
 	cursor.execute("SELECT m.refMotCle.mot_cle FROM Documents d, TABLE(d.motCle) m WHERE d.iddoc=:idoc ", idoc=doc)
 	print("Mots-clé associés : ")
 	for row in cursor:
@@ -193,19 +193,19 @@ def recherche_cat() :
 		sel_cat=("SELECT d.iddoc, d.titre FROM Documents d WHERE d.categorie.nom='"+cat+"' AND d.archivedoc <> 'Y'")
 		cursor = connection.cursor()
 		cursor.execute(sel_cat)
-					
+
 		for row in cursor:
 			print("iddoc : {:20s} Titre: {:100s}".format(row[0], row[1]))
 		info_doc()
-		
-	else : 	
+
+	else :
 		print("Il n'y a pas de documents à afficher")
 
 #fonction de recherche par mot clé !! PAS FINI
 def recherche_mot_cle() :
 	cursor = connection.cursor()
 	cursor.execute("select * from MotCle")
-	i=0					
+	i=0
 	for row in cursor:
 		print("numéro : ", i, " Mot Clé:", row)
 		i=i+1
@@ -220,12 +220,12 @@ def recherche_semestre() :
 	sel_semestre=("SELECT nom FROM Documents d WHERE d.semestredoc.saison='"+saison+"' AND d.semestredoc.annee='" +annee+ "')")
 	cursor = connection.cursor()
 	cursor.execute(sel_semestre)
-		
+
 	for row in cursor:
 		print(row)
 	#A COMPLETER
 
-		
+
 #fonction pour afficher le menu de choix entre admin ou eleve
 def menu_personne() :
 	print("Vous êtes un : \n 0- administrateur \n 1- un élève/prof ... \n 2-vous voulez quitter")
@@ -238,14 +238,14 @@ def menu_personne() :
 
 
 #fonction pour afficher les fonctions que l'admin peut réaliser
-def menu_admin() : 
+def menu_admin() :
 	print("Voici les différentes actions que vous pouvez réaliser : \n 0- archiver un document \n 1- ajouter une licence \n 2- ajouter une categorie\n 3-retirer un document de l'archive \n 4-quitter le mode administrateur \n entrez le numéro de l'action que vous souhaitez réaliser")
 	action=input()
 	return action
 
 #fonction pour afficher les fonctions qu'un utilisateur CAS peut réaliser
 
-def menu_eleve() : 
+def menu_eleve() :
 	print("voici les différentes actions que vous pouvez réaliser : \n 0 - ajouter un document \n 1-rechercher un document \n 2-quitter le mode utilisateur")
 
 	action=input()
@@ -275,30 +275,30 @@ while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
 				action=menu_admin
 
 			#archive d'un document
-			if action == 0 : 
+			if action == 0 :
 				archive_doc()
-		
+
 			#ajouter une licence
 			if action == 1 :
-				ajout_licenc()
+				ajout_licence()
 			#ajouter une categorie
 			if action == 2 :
 				ajout_categorie()
 			#enlever un document de l'archive
 			if action == 3 :
 				retour_archive()
-	
-			if action == 4 : 
+
+			if action == 4 :
 				etat = 1
-		
+
 
 
 		if type == 1 : #partie user CAS
 			action=menu_eleve()
-			if action == 0 : 
+			if action == 0 :
 
 				ajout_doc()
-		
+
 
 			if action == 1 :
 				print("Vous souhaitez rechercher un document \n")
@@ -307,7 +307,7 @@ while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
 					recherche = input()
 					if recherche == 0 :
 						recherche_cat()
-					
+
 
 					if recherche == 1:
 						recherche_mot_cle()
@@ -315,30 +315,26 @@ while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
 					#recherche par mot clé
 						exit()
 
-					if recherche == 2 : 
-					#recherche par auteur		
+					if recherche == 2 :
+					#recherche par auteur
 						exit()
 
 
-					if recherche == 3 : 
+					if recherche == 3 :
 					#recherche par semestre
 						recherche_semestre()
-				
-				
+
+
 					if recherche == 4 :
 						recherche = 6
 						action = 6
 						etat = 2
-		
-
 
 
 			if action == 2 :
 				etat=1
-	
-	
+
+
 		if type == 2 :
 			exit()
-
-
 

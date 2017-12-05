@@ -207,10 +207,23 @@ def recherche_mot_cle() :
 	cursor.execute("select * from MotCle")
 	i=0
 	for row in cursor:
-		print("numéro : ", i, " Mot Clé:", row)
+		print("Mot Clé:", row)
 		i=i+1
 	print("Entrez le mot clé qui vous interesse")
-	#A COMPLETER
+	mot=raw_input()
+	cursor.execute("SELECT COUNT (*) FROM( SELECT d.iddoc, d.titre FROM Documents d, TABLE (d.motCle) m WHERE m.refMotCle.mot_cle ='"+mot+"' AND d.archivedoc <> 'Y') ")
+	count = cursor.fetchall()[0][0]
+	if count > 0 :
+		sel_mot=( "SELECT d.iddoc, d.titre FROM Documents d, TABLE (d.motCle) m WHERE m.refMotCle.mot_cle ='"+mot+"' AND d.archivedoc <> 'Y'")
+		cursor = connection.cursor()
+		cursor.execute(sel_mot)
+
+		for row in cursor:
+			print("iddoc : {:20s} Titre: {:100s}".format(row[0], row[1]))
+		info_doc()
+
+	else :
+		print("Il n'y a pas de documents à afficher")
 
 #fonction de recherche par semestre !! PAS FINI
 def recherche_semestre() :
@@ -310,13 +323,13 @@ while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
 
 
 					if recherche == 1:
+						#recherche par mot clé
 						recherche_mot_cle()
 
-					#recherche par mot clé
-						exit()
 
 					if recherche == 2 :
 					#recherche par auteur
+					#enelever le exit() une fois que la fonction est implémentée
 						exit()
 
 
@@ -329,7 +342,6 @@ while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
 						recherche = 6
 						action = 6
 						etat = 2
-
 
 			if action == 2 :
 				etat=1

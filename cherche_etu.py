@@ -3,9 +3,6 @@ import cx_Oracle as cx
 connection = cx.connect("na17a015", "7iNpUoSO", "sme-oracle.sme.utc/nf26")
 
 
-
-#cursor = connection.cursor()
-
 def recherche_etu() :
 	cursor = connection.cursor()
 	nom = input("Quel est le nom de l'étudiant que vous recherchez ? : ")

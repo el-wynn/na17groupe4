@@ -1,0 +1,34 @@
+\documentclass[11pt]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+ \usepackage{listings}
+
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{color}
+\pagestyle{fancy}
+
+\title{\textbf{Etudoc}}
+\author{Noémie Galzin \\
+		Yueqing Jia \\
+		Elwynn \\
+		Océane Dubois}
+\date{}
+\begin{document}
+
+\maketitle
+\newpage
+\section{Présentation}
+
+
+\section{Fonctions implémentées}
+
+\subsection{Fonctions de l'administrateur}
+
+\subsection{Fonction de l'utilisateur}
+\subsubsection{ajouter un document}
+\subsubsection{rechercher un document}
+
+
+\end{document}
+

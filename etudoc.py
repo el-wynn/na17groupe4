@@ -16,7 +16,7 @@ connection = cx_Oracle.connect("na17a013","txtAAC0I","sme-oracle.sme.utc/nf26")
 
 #fonction pour archiver un document
 def archive_doc() :
-	print("vous souhaitez archiver un document, voici la liste des documents qui ne sont pas encore archivés")
+	print("Vous souhaitez archiver un document, voici la liste des documents qui ne sont pas encore archivés")
 
 	cursor = connection.cursor()
 	cursor.execute("""SELECT COUNT (*) FROM( SELECT iddoc, titre FROM Documents WHERE archivedoc <> 'Y') """)
@@ -46,8 +46,8 @@ def ajout_licence() :
 	for row in cursor:
 		print(row)
 
-	code=raw_input("donnez le nom de code de la licence que vous souhaitez insérer : ")
-	des=raw_input("donnez la description de la licence : ")
+	code=raw_input("Donnez le nom de code de la licence que vous souhaitez insérer : ")
+	des=raw_input("Donnez la description de la licence : ")
 
 	cursor = connection.cursor()
 	add_licence=("INSERT INTO Licence(code, nom) VALUES( '" + code + "', '"+des+"')")
@@ -69,14 +69,14 @@ def ajout_licence() :
 #fonction pour ajouter une catégorie
 
 def ajout_categorie() :
-	print("vous souhaitez ajouter une categorie \n")
+	print("Vous souhaitez ajouter une categorie \n")
 
 	cursor = connection.cursor()
  	cursor.execute("select * from categorie")
 
 	for row in cursor:
 		print(row)
-	nom=raw_input("donnez le nom de la categorie que vous souhaitez insérer : ")
+	nom=raw_input("Donnez le nom de la categorie que vous souhaitez insérer : ")
 
 	cursor = connection.cursor()
 	add_cat=("INSERT INTO Categorie(nom) VALUES( '" + nom + "')")
@@ -148,41 +148,86 @@ def info_doc() :
 	cursor.execute("SELECT aut.Etudiant.nom, aut.Etudiant.prenom FROM Documents d, TABLE(d.auteur) aut WHERE d.iddoc=:idoc ", idoc=doc)
 
 	for row in cursor:
-		print("Nom de l'auteur : {:50} Prénom de l'auteur : {:50}" .format(row[0], row[1]))
+		print("nom de l'auteur : {:50} prénom de l'auteur : {:50}" .format(row[0], row[1]))
 
 	cursor.execute("SELECT ens.Enseignant.nom, ens.Enseignant.prenom FROM Documents d, TABLE(d.professeur) ens WHERE d.iddoc=:idoc ", idoc=doc)
 
 	for row in cursor:
-		print("Nom de l'enseignant : {:50} Prénom de l'enseignant ; {:50}" .format(row[0], row[1]))
+		print("nom de l'enseignant : {:50} prénom de l'enseignant ; {:50}" .format(row[0], row[1]))
 
 	cursor.execute("SELECT l.Licence.nom FROM Documents d, TABLE(d.licencedoc) l WHERE d.iddoc=:idoc ", idoc=doc)
 
 	for row in cursor:
-		print("Licence : {:50} " .format(row[0]))
+		print("licence : {:50} " .format(row[0]))
 
 	cursor.execute("SELECT m.refMotCle.mot_cle FROM Documents d, TABLE(d.motCle) m WHERE d.iddoc=:idoc ", idoc=doc)
-	print("Mots-clé associés : ")
+	print("mots-clé associés : ")
 	for row in cursor:
 		print(" {:50} " .format(row[0]))
 
 
 #fonction pour ajouter un document !!! PAS FINI
 def ajout_doc() :
+	nom_etu = []
+	prenom_etu = []
+	nom_ens = []
+	prenom_ens = []
+
 	print("Vous souhaitez ajouter un document \n")
 	cursor = connection.cursor()
 	cursor.execute("SELECT MAX(d.iddoc) FROM Documents d")#l'id du nouveau document sera l'id max des documents actuel +1
 	for row in cursor:
-		iddocc=int(row[0])+1
-		titre=raw_input("Donnez le titre de votre document : ")
-		des=raw_input("Donnez la description de votre document : ")
-		date=datetime.date.today()
+		iddoc=int(row[0])+1
+	titre=raw_input("Donnez le titre de votre document : ")
+	date_pb=datetime.date.today()
+	description=raw_input("Donnez la description de votre document : ")
+	while True:
+		saison=raw_input("Donnez la saison (P ou A")
+		if saison == 'P' or saison == 'A' :
+			annee=raw_input("Donnez l'année (ex : 2017)")
+			if annee > 1900 and annee < 2050 :
+				break
+	categorie=raw_input("Donnez la catégorie à laquelle appartient le document")
+	licence=raw_input("Donnez la licence")
+	#Check Licences
+	mot_cle=raw_input("Attribuez un mot clé")
+	while True:
+		nb_auteurs=raw_input("Combien y a-t-il d'auteurs? (1 minimum)")
+		if nb_auteurs > 0 :
+			break
+	for i in range(0,nb_auteurs):
+		print("Renseignez les auteurs (%d restants)" % nb_auteurs-i)
+		nom_etu.append(raw_input("Nom :"))
+		prenom_etu.append(raw_input("Prénom :"))
+	nb_profs=raw_input("Combien y a-t-il d'enseignant tuteurs du documents?")
+	for i in range(0,nb_profs):
+		print("Renseignez les enseignant (%d restants)" % nb_profs-i)
+		nom_ens.append(raw_input("Nom :"))
+		prenom_ens.append(raw_input("Prénom :"))
+
+	#Liste??
+	add_doc=("INSERT INTO Documents (idDoc, titre, date_pb, auteur, professeur, description, semestredoc, categorie, licencedoc, motCle) VALUES(:idoc,'"+titre+"','"+date_pb+"','"+description+"','"+saison+annee+"','"+categorie+"','"+licence+"','"+mot_cle"')")
+
+	try :
+		cursor.execute(add_doc, idoc=iddoc)
+
+	except  cx_Oracle.DatabaseError as exc:
+ 		error, = exc.args
+    		if error.code == 1:
+    			print("L'élement existe déjà dans la base de données")
+			exit()
+	finally :
+		cursor.close()
+	print("L'insertion à été réalisée correctement")
+	connection.commit()
+
 		# A COMPLETER
 
 #fonction pour rechercher des documents par catégorie
 
 def recherche_cat() :
 	cursor = connection.cursor()
-	cursor.execute("select * from categorie")
+	cursor.execute("SELECT * FROM categorie")
 	for row in cursor:
 		print(" Categorie:", row)
 	print("Ecrivez le nom de la categorie dans laquelle vous souhaitez rechercher un document")
@@ -201,7 +246,7 @@ def recherche_cat() :
 	else :
 		print("Il n'y a pas de documents à afficher")
 
-#fonction de recherche par mot clé !! PAS FINI
+#fonction de recherche par mot clé !! 
 def recherche_mot_cle() :
 	cursor = connection.cursor()
 	cursor.execute("select * from MotCle")
@@ -225,17 +270,21 @@ def recherche_mot_cle() :
 	else :
 		print("Il n'y a pas de documents à afficher")
 
-#fonction de recherche par semestre !! PAS FINI
+#fonction de recherche par semestre !!
 def recherche_semestre() :
 	saison = raw_input('Entrez la saison (P ou A) : ')
-	annee=raw_input("entrez l'année (ex : 2017) : ")
+	annee=raw_input("Entrez l'année (ex : 2017) : ")
 
 	sel_semestre=("SELECT nom FROM Documents d WHERE d.semestredoc.saison='"+saison+"' AND d.semestredoc.annee='" +annee+ "')")
 	cursor = connection.cursor()
 	cursor.execute(sel_semestre)
-
-	for row in cursor:
-		print(row)
+	count = cursor.fetchall()[0][0]
+	if count == 0 :
+		print("Il n'y a pas de documents à afficher")
+		return 0
+	else :
+		for row in cursor:
+			print(row)
 	#A COMPLETER
 
 
@@ -349,4 +398,3 @@ while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
 
 		if type == 2 :
 			exit()
-

@@ -384,6 +384,69 @@ def menu_eleve() :
 	return action
 
 
+#fonction de recherche combinée
+def recherche_combinee() :
+	#print("Vous voulez rechercher par : \n 0- catégorie \n 1- mot-clé \n 2- semestre \n 3- saisi terminé")
+	#choix=input()
+	count = 0
+	choix = 0
+	sql = ""
+	cursor = connection.cursor()
+	while choix >= 0 and choix <= 3:
+		print("Vous voulez rechercher par(Pour terminer votre saisi, tapez 3) : \n 0- catégorie \n 1- mot-clé \n 2- semestre \n 3- saisi terminé")
+		choix=input()
+		if choix == 0:
+			cursor.execute("SELECT * FROM categorie")
+			for row in cursor:
+				print(" Categorie:", row)
+			print("Ecrivez le nom de la categorie dans laquelle vous souhaitez rechercher un document")
+			cat=raw_input()
+			if count == 1:
+				sql += " UNION SELECT d.iddoc, d.titre FROM Documents d WHERE d.categorie.nom='"+cat+"' AND archivedoc <> 'Y'"
+			else:
+				sql += "SELECT d.iddoc, d.titre FROM Documents d WHERE d.categorie.nom='"+cat+"' AND archivedoc <> 'Y'"
+			count = 1
+		if choix == 1:
+			cursor.execute("SELECT * FROM MOTCLE")
+			for row in cursor:
+				print(" MotCle:", row)
+			print("Ecrivez le mot-clé dans laquelle vous souhaitez rechercher un document")
+			motcle=raw_input()
+			if count == 1:
+				sql += " UNION SELECT d.iddoc, d.titre FROM Documents d, TABLE(d.motCle) m WHERE m.refMotCle.mot_cle= '"+motcle+"' AND archivedoc <> 'Y'"
+			else:
+				sql += "SELECT d.iddoc, d.titre FROM Documents d, TABLE(d.motCle) m WHERE m.refMotCle.mot_cle= '"+motcle+"' AND archivedoc <> 'Y'"
+			count = 1
+		if choix == 2:
+			cursor.execute("SELECT * FROM SEMESTRE")
+			for row in cursor:
+				print(" semestre:", row)
+			print("Ecrivez le nom du semestre(A ou P) dans laquelle vous souhaitez rechercher un document")
+			sem=raw_input()
+			print("Ecrivez le nom de l'année dans laquelle vous souhaitez rechercher un document")
+			an=raw_input()
+			if count == 1:
+				sql += " UNION SELECT d.iddoc, d.titre FROM Documents d WHERE d.semestredoc.saison = '"+sem+"' AND d.semestredoc.annee = '"+an+"' AND archivedoc <> 'Y'"
+			else:
+				sql += "SELECT d.iddoc, d.titre FROM Documents d WHERE d.semestredoc.saison = '"+sem+"' AND d.semestredoc.annee = '"+an+"' AND archivedoc <> 'Y'"
+			count = 1
+		if choix == 3:
+			#print(sql)
+			cursor.execute("SELECT COUNT(*) FROM("+sql+")")
+			nb = cursor.fetchall()[0][0]
+			if nb > 0:
+				sel_cat=(sql)
+				cursor = connection.cursor()
+				cursor.execute(sel_cat)
+				for row in cursor:
+					print("iddoc : {:20s} Titre: {:100s}".format(row[0], row[1]))
+				info_doc()
+			else :
+				print("Il n'y a pas de documents à afficher")
+			choix = 4
+			count = 0
+
+
 #corps du programme principale
 
 etat = 1
@@ -430,7 +493,7 @@ while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
 			if action == 1 :
 				print("Vous souhaitez rechercher un document \n")
 				while action<3 :
-					print("Vous souhaitez faire une recherche par : \n 0-categorie \n 1- mot clé \n 2 - nom de l'auteur \n 3 - semestre \n 4 - retour au menu élève")
+					print("Vous souhaitez faire une recherche par : \n 0-categorie \n 1- mot clé \n 2 - nom de l'auteur \n 3 - semestre \n 4 - recherche combinée \n 5 - retour au menu élève")
 					recherche = input()
 					if recherche == 0 :
 						recherche_cat()
@@ -451,11 +514,15 @@ while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
 					#recherche par semestre
 						recherche_semestre()
 
-
 					if recherche == 4 :
+					#recherche par semestre
+						recherche_combinee()
+
+					if recherche == 5 :
 						recherche = 6
 						action = 6
 						etat = 2
+
 
 			if action == 2 :
 				etat=1

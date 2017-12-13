@@ -211,8 +211,8 @@ def ajout_doc() :
 	try :
 		cursor.execute(add_doc)
 	except  cx_Oracle.DatabaseError as exc:
- 		error, = exc.args
-			print("Une erreur est survenue lors de l'insertion (Code d'erreur: %d)" % error.code)
+ 		error = exc.args
+		print("Une erreur est survenue lors de l'insertion (Code d'erreur: %d)" % error.code)
 	finally :
 		cursor.close()
 	print("L'insertion à été réalisée correctement")

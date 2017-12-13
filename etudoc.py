@@ -166,12 +166,9 @@ def info_doc() :
 		print(" {:50} " .format(row[0]))
 
 
-#fonction pour ajouter un document !!! PAS FINI
+#fonction pour ajouter un document
 def ajout_doc() :
-	nom_etu = []
-	prenom_etu = []
-	nom_ens = []
-	prenom_ens = []
+	tab = []
 
 	print("Vous souhaitez ajouter un document \n")
 	cursor = connection.cursor()
@@ -182,46 +179,44 @@ def ajout_doc() :
 	date_pb=datetime.date.today()
 	description=raw_input("Donnez la description de votre document : ")
 	while True:
-		saison=raw_input("Donnez la saison (P ou A")
-		if saison == 'P' or saison == 'A' :
-			annee=raw_input("Donnez l'année (ex : 2017)")
-			if annee > 1900 and annee < 2050 :
+		saison=raw_input("Donnez la saison (P ou A) : ")
+		if (saison == 'P') | (saison == 'A') :
+			annee=input("Donnez l'année (ex : 2017) :")
+			if (annee > 1900) & (annee < 2050) :
 				break
-	categorie=raw_input("Donnez la catégorie à laquelle appartient le document")
-	licence=raw_input("Donnez la licence")
-	#Check Licences
-	mot_cle=raw_input("Attribuez un mot clé")
+	categorie=raw_input("Donnez la catégorie à laquelle appartient le document : ")
+	licence=raw_input("Donnez la licence : ")
+	mot_cle=raw_input("Attribuez un mot clé : ")
 	while True:
-		nb_auteurs=raw_input("Combien y a-t-il d'auteurs? (1 minimum)")
+		nb_auteurs=input("Combien y a-t-il d'auteurs? (1 minimum) : ")
 		if nb_auteurs > 0 :
 			break
 	for i in range(0,nb_auteurs):
-		print("Renseignez les auteurs (%d restants)" % nb_auteurs-i)
-		nom_etu.append(raw_input("Nom :"))
-		prenom_etu.append(raw_input("Prénom :"))
-	nb_profs=raw_input("Combien y a-t-il d'enseignant tuteurs du documents?")
+		print("Renseignez les auteurs (%d restants) : " % (nb_auteurs-i))
+		nom=raw_input("Nom : ")
+		prenom=raw_input("Prénom : ")
+		tab.append("typEtu('"+nom+"','"+prenom+"')")
+	liste_etu=",".join(tab)
+	tab = []
+	nb_profs=input("Combien y a-t-il d'enseignant tuteurs du documents? : ")
 	for i in range(0,nb_profs):
-		print("Renseignez les enseignant (%d restants)" % nb_profs-i)
-		nom_ens.append(raw_input("Nom :"))
-		prenom_ens.append(raw_input("Prénom :"))
+		print("Renseignez les enseignant (%d restants) : " % (nb_profs-i))
+		nom=raw_input("Nom : ")
+		prenom=raw_input("Prénom : ")
+		tab.append("typEns('"+nom+"','"+prenom+"')")
+	liste_ens=",".join(tab)
+	tab = []
+	add_doc=("INSERT INTO Documents (idDoc, titre, date_pb, auteur, professeur, description, semestredoc, categorie, licencedoc, motCle) VALUES("+str(iddoc)+",'"+titre+"',"+str(date_pb)+",typListeEtu("+liste_etu+"),typListEns("+liste_ens+"),'"+description+"','"+saison+str(annee)+"','"+categorie+"','"+licence+"','"+mot_cle+"')");
 
-	#Liste??
-	#add_doc=("INSERT INTO Documents (idDoc, titre, date_pb, auteur, professeur, description, semestredoc, categorie, licencedoc, motCle) VALUES(:idoc,'"+titre+"','"+date_pb+"','"+description+"','"+saison+annee+"','"+categorie+"','"+licence+"','"+mot_cle"')")
-
-	#try :
-	#	cursor.execute(add_doc, idoc=iddoc)
-
-	#except  cx_Oracle.DatabaseError as exc:
- 	#	error, = exc.args
-    	#	if error.code == 1:
-    	#		print("L'élement existe déjà dans la base de données")
-	#		exit()
-	#finally :
-	#	cursor.close()
+	try :
+		cursor.execute(add_doc)
+	except  cx_Oracle.DatabaseError as exc:
+ 		error, = exc.args
+			print("Une erreur est survenue lors de l'insertion (Code d'erreur: %d)" % error.code)
+	finally :
+		cursor.close()
 	print("L'insertion à été réalisée correctement")
 	connection.commit()
-
-		# A COMPLETER
 
 #fonction pour rechercher des documents par catégorie
 

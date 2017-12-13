@@ -12,7 +12,7 @@ import datetime
 
 pathlocal = os.getcwd() + '/'
 
-connection = cx_Oracle.connect("na17a015","7iNpUoSO","sme-oracle.sme.utc/nf26")
+connection = cx_Oracle.connect("na17a013","txtAAC0I","sme-oracle.sme.utc/nf26")
 
 
 #fonction de recherche par semestre
@@ -22,26 +22,31 @@ def recherche_semestre() :
 
 	#On vérifie que le semestre entré est bien valide
 	today = date.today()
+	print(today.year)
 	if saison != 'P' and saison != 'A' :
 		print("Saison incorrecte.")
-	elif annee < 1972 or annee > today.year :
-		print ("Année incorrecte.")
+	#elif annee < 1972 or annee >= today.year :
+	#	print ("Année incorrecte.")
 
 	#Et s'il est valide on execute le select dans la BD
+	#gérer doc non archivés
 	else :
-		sel_semestre=("SELECT d.iddoc, d.titre FROM Documents d WHERE d.semestredoc.saison='"+saison+"' AND d.semestredoc.annee='" +annee+ "')")
 		cursor = connection.cursor()
-		cursor.execute(sel_semestre)
+		cursor.execute("SELECT COUNT (*) FROM( SELECT d.iddoc, d.titre FROM Documents d WHERE d.semestredoc.saison='"+saison+"' AND d.semestredoc.annee='"+annee+"' AND d.archivedoc <> 'Y') ")
 		count = cursor.fetchall()[0][0]
-
+		print(count)
 		if count == 0 :
 			print("Il n'y a pas de documents à afficher")
-			return 0
+
 
 		else :
+			cursor.execute("SELECT d.iddoc, d.titre FROM Documents d WHERE d.semestredoc.saison ='"+saison+"' AND d.semestredoc.annee ='"+annee+"' AND d.archivedoc <> 'Y'")
 			for row in cursor:
 				print(row)
         
 			info_doc()
 
 		cursor.close()
+
+
+recherche_semestre()

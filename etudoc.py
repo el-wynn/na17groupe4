@@ -168,184 +168,135 @@ def info_doc() :
 
 #fonction pour ajouter un document
 def ajout_doc() :
-#         print("Vous souhaitez ajouter un document \n")
-#         cursor = connection.cursor()
-#         #l'id du nouveau document sera l'id max des documents actuel +1
-#         cursor.execute("SELECT MAX(d.iddoc) FROM Documents d")
-#         for row in cursor:
-#                 iddoc=int(row[0])+1
-#         titre=raw_input("Donnez le titre de votre document : ")
-#         date_pb=datetime.date.today()
-#         description=raw_input("Donnez la description de votre document : ")
-#         #Semestre
-#         while True:
-#                 saison=raw_input("Donnez la saison (P ou A) : ")
-#                 if (saison == 'P') | (saison == 'A') :
-#                         try :
-#                                 annee=int(raw_input("Donnez l'année (ex : 2017) :"))
-#                                 if (isinstance(annee,int)) &(annee > 1900) & (annee < 2050) :
-#                                         break
-#                         except ValueError:
-#                                 annee = 0
-#         #Categorie
-#         tab = []
-#         print("Categories disponibles : ");
-#         cursor.execute("SELECT * FROM Categorie")
-#         for row in cursor:
-#                 print(row[0])
-#                 tab.append(row[0])
-#         loop = True;
-#         while loop:
-#                 categorie=raw_input("Donnez la catégorie à laquelle appartient le document : ")
-#                 for i in tab:
-#                         if (categorie == i):
-#                                 loop = False;
-#         #Licence
-#         tab = []
-#         print("Licences disponibles : ");
-#         cursor.execute("SELECT * FROM Licence")
-#         for row in cursor:
-#                 print(row[0])
-#                 tab.append(row[0])
-#         loop = True;
-#         while loop:
-#                 licence=raw_input("Donnez la licence du document : ")
-#                 for i in tab:
-#                         if (licence == i):
-#                                 loop = False;
-#         #Mot_cle
-#         mot_cle=raw_input("Attribuez un mot clé : ")
-#         cursor.execute("SELECT * from MotCle WHERE mot_cle = '"+mot_cle+"'")
-#         count = cursor.fetchone()
-#         #On ajoute si le mot cle n'existe pas
-#         if count == 0 :
-#                 cursor.execute("INSERT INTO MotCle(mot_cle) VALUES('"+mot_cle+"')")
+    print("Vous souhaitez ajouter un document \n")
+    cursor = connection.cursor()
+    #l'id du nouveau document sera l'id max des documents actuel +1
+    cursor.execute("SELECT MAX(d.iddoc) FROM Documents d")
+    for row in cursor:
+            iddoc=int(row[0])+1
+    titre=raw_input("Donnez le titre de votre document : ")
+    date_pb=datetime.date.today()
+    description=raw_input("Donnez la description de votre document : ")
+    #Semestre
+    while True:
+            saison=raw_input("Donnez la saison (P ou A) : ")
+            if (saison == 'P') | (saison == 'A') :
+                    try :
+                            annee=int(raw_input("Donnez l'année (ex : 2017) :"))
+                            if (isinstance(annee,int)) &(annee > 1900) & (annee < 2050) :
+                                    break
+                    except ValueError:
+                            annee = 0
+    #Categorie
+    tab = []
+    print("Categories disponibles : ");
+    cursor.execute("SELECT * FROM Categorie")
+    for row in cursor:
+            print(row[0])
+            tab.append(row[0])
+    loop = True;
+    while loop:
+            categorie=raw_input("Donnez la catégorie à laquelle appartient le document : ")
+            for i in tab:
+                    if (categorie == i):
+                            loop = False;
+    #Licence
+    tab = []
+    print("Licences disponibles : ");
+    cursor.execute("SELECT * FROM Licence")
+    for row in cursor:
+            print(row[0])
+            tab.append(row[0])
+    loop = True;
+    while loop:
+            licence=raw_input("Donnez la licence du document : ")
+            for i in tab:
+                    if (licence == i):
+                            loop = False;
+    #Mot_cle
+    mot_cle=raw_input("Attribuez un mot clé : ")
+    cursor.execute("SELECT * from MotCle WHERE mot_cle = '"+mot_cle+"'")
+    count = cursor.fetchone()
+    #On ajoute si le mot cle n'existe pas
+    if count == 0 :
+            cursor.execute("INSERT INTO MotCle(mot_cle) VALUES('"+mot_cle+"')")
 
-#         #Etudiants
-#         tab_etu = []
-#         while True:
-#                 nb_etu=input("Combien y a-t-il d'auteurs? (1 minimum) : ")
-#                 if nb_etu > 0 :
-#                         break
-#         for i in range(0,nb_etu):
-#                 print("Renseignez les auteurs (%d restants) : " % (nb_etu-i))
-#                 while True : 
-#                         login=raw_input("Login : ")
-#                         if len(login) == 8 :
-#                                 break
-#                         print("Login incorrect.")
-#                 cursor.execute("SELECT COUNT(*) FROM Etudiant WHERE login = '" +login+ "'")
-#                 count = cursor.fetchone()[0]
-#                 #Si le login existe
-#                 if count > 0 :
-#                         cursor.execute("SELECT e.nom, e.prenom FROM Etudiant e WHERE e.login = '" +login+ "'")
-#                         for row in cursor : 
-#                                 nom=row[0]
-#                                 prenom=row[1]
-#                 #Sinon, ajout dans la table Etudiants
-#                 else :
-#                         while True :
-#                                 nom=raw_input("Nom : ")
-#                                 prenom=raw_input("Prénom : ")
-#                                 #Verifie si le nom/prenom contients des nombres
-#                                 if any(i.isdigit() for i in (nom+prenom)) == False :
-#                                         break;
-#                         cursor.execute("INSERT INTO Etudiant(login,nom,prenom) VALUES ('"+login+"','"+nom.title()+"','"+prenom.title()+"')")
-#                 tab_etu.append(login)
-#         #liste_etu=",".join(tab_etu)
-#         #Enseignants
-#         tab_ens = []
-#         while True:
-#                 nb_ens=input("Combien y a-t-il d'enseignant tuteurs du documents? : ")
-#                 if nb_ens > 0 :
-#                         break
-#         for i in range(0,nb_ens):
-#                 print("Renseignez les enseignants (%d restants) : " % (nb_ens-i))
-#                 while True : 
-#                         login=raw_input("Login : ")
-#                         if len(login) == 8 :
-#                                 break
-#                         print("Login incorrect.")
-#                 cursor.execute("SELECT COUNT(*) FROM Enseignant WHERE login = '" +login+ "'")
-#                 count = cursor.fetchone()[0]
-#                 #Si le login existe
-#                 if count > 0 :
-#                         cursor.execute("SELECT e.nom, e.prenom FROM Enseignant e WHERE e.login = '" +login+ "'")
-#                         for row in cursor : 
-#                                 nom=row[0]
-#                                 prenom=row[1]
-#                 #Sinon, ajout dans la table Enseignant
-#                 else :
-#                         while True :
-#                                 nom=raw_input("Nom : ")
-#                                 prenom=raw_input("Prénom : ")
-#                                 #Verifie si le nom/prenom contients des nombres
-#                                 if any(i.isdigit() for i in (nom+prenom)) == False :
-#                                         break;
-#                         cursor.execute("INSERT INTO Enseignant(login,nom,prenom) VALUES ('"+login+"','"+nom.title()+"','"+prenom.title()+"')")
-#                 tab_ens.append(login)
-#         #liste_ens=",".join(tab_ens)
-#         cursor = connection.cursor()
-#         try :
-#                 cursor.execute("DECLARE osemestre REF typSemestre; ocategorie REF typCategorie; olicence REF typLicence; omotcle REF typMotCle; oetu REF typeEtu; oens REF typeEns; BEGIN SELECT REF(s) INTO osemestre FROM Semestre s WHERE s.annee='"+str(annee)+"' AND s.saison='"+saison+"'; SELECT REF(c) INTO ocategorie FROM Categorie c WHERE c.nom='"+categorie+"'; SELECT REF(l) INTO olicence FROM Licence l WHERE l.code='"+licence+"'; SELECT REF(m) INTO omotcle FROM MotCle m WHERE m.mot_cle='"+mot_cle+"'; SELECT REF(etu) INTO oetu FROM Etudiant etu WHERE etu.login='"+str(tab_etu[0])+"'; SELECT REF(ens) INTO oens FROM Enseignant ens WHERE ens.login='"+str(tab_ens[0])+"'; INSERT INTO Documents (idDoc,archivedoc, titre, date_pb, auteur, professeur, description, semestredoc, categorie, licencedoc, motCle) VALUES('"+str(iddoc)+"','N','"+titre+"',sysdate,listeEtu(refetu(oetu)),listeEns(refens(oens)),'"+description+"',osemestre,ocategorie,listeLicence(refLicence(olicence)),listeMotCle(refMotCle(omotcle))); END;")
-#         except  cx_Oracle.DatabaseError as exc:
-#                 error, = exc.args
-#                 print("Une erreur est survenue lors de l'insertion (Code d'erreur: %d)" % error.code)
-#                 print(error.message)
-#         finally :
-#                 cursor.close()        
-#                 print("L'insertion à été réalisée correctement")
-#         connection.commit()
-# =======
-	tab = []
+    #Etudiants
+    tab_etu = []
+    while True:
+            nb_etu=input("Combien y a-t-il d'auteurs? (1 minimum) : ")
+            if nb_etu > 0 :
+                    break
+    for i in range(0,nb_etu):
+            print("Renseignez les auteurs (%d restants) : " % (nb_etu-i))
+            while True : 
+                    login=raw_input("Login : ")
+                    if len(login) == 8 :
+                            break
+                    print("Login incorrect.")
+            cursor.execute("SELECT COUNT(*) FROM Etudiant WHERE login = '" +login+ "'")
+            count = cursor.fetchone()[0]
+            #Si le login existe
+            if count > 0 :
+                    cursor.execute("SELECT e.nom, e.prenom FROM Etudiant e WHERE e.login = '" +login+ "'")
+                    for row in cursor : 
+                            nom=row[0]
+                            prenom=row[1]
+            #Sinon, ajout dans la table Etudiants
+            else :
+                    while True :
+                            nom=raw_input("Nom : ")
+                            prenom=raw_input("Prénom : ")
+                            #Verifie si le nom/prenom contients des nombres
+                            if any(i.isdigit() for i in (nom+prenom)) == False :
+                                    break;
+                    cursor.execute("INSERT INTO Etudiant(login,nom,prenom) VALUES ('"+login+"','"+nom.title()+"','"+prenom.title()+"')")
+            tab_etu.append(login)
+    #liste_etu=",".join(tab_etu)
 
-	print("Vous souhaitez ajouter un document \n")
-	cursor = connection.cursor()
-	cursor.execute("SELECT MAX(d.iddoc) FROM Documents d")#l'id du nouveau document sera l'id max des documents actuel +1
-	for row in cursor:
-		iddoc=int(row[0])+1
-	titre=raw_input("Donnez le titre de votre document : ")
-	date_pb=datetime.date.today()
-	description=raw_input("Donnez la description de votre document : ")
-	while True:
-		saison=raw_input("Donnez la saison (P ou A) : ")
-		if (saison == 'P') | (saison == 'A') :
-			annee=input("Donnez l'année (ex : 2017) :")
-			if (annee > 1900) & (annee < 2050) :
-				break
-	categorie=raw_input("Donnez la catégorie à laquelle appartient le document : ")
-	licence=raw_input("Donnez la licence : ")
-	mot_cle=raw_input("Attribuez un mot clé : ")
-	while True:
-		nb_auteurs=input("Combien y a-t-il d'auteurs? (1 minimum) : ")
-		if nb_auteurs > 0 :
-			break
-	for i in range(0,nb_auteurs):
-		print("Renseignez les auteurs (%d restants) : " % (nb_auteurs-i))
-		nom=raw_input("Nom : ")
-		prenom=raw_input("Prénom : ")
-		tab.append("typEtu('"+nom+"','"+prenom+"')")
-	liste_etu=",".join(tab)
-	tab = []
-	nb_profs=input("Combien y a-t-il d'enseignant tuteurs du documents? : ")
-	for i in range(0,nb_profs):
-		print("Renseignez les enseignant (%d restants) : " % (nb_profs-i))
-		nom=raw_input("Nom : ")
-		prenom=raw_input("Prénom : ")
-		tab.append("typEns('"+nom+"','"+prenom+"')")
-	liste_ens=",".join(tab)
-	tab = []
-	add_doc=("INSERT INTO Documents (idDoc, titre, date_pb, auteur, professeur, description, semestredoc, categorie, licencedoc, motCle) VALUES("+str(iddoc)+",'"+titre+"',"+str(date_pb)+",typListeEtu("+liste_etu+"),typListEns("+liste_ens+"),'"+description+"','"+saison+str(annee)+"','"+categorie+"','"+licence+"','"+mot_cle+"')");
-
-	try :
-		cursor.execute(add_doc)
-	except  cx_Oracle.DatabaseError as exc:
- 		error, = exc.args
-			print("Une erreur est survenue lors de l'insertion (Code d'erreur: %d)" % error.code)
-	finally :
-		cursor.close()
-	print("L'insertion à été réalisée correctement")
-	connection.commit()
+    #Enseignants
+    tab_ens = []
+    while True:
+            nb_ens=input("Combien y a-t-il d'enseignant tuteurs du documents? : ")
+            if nb_ens > 0 :
+                    break
+    for i in range(0,nb_ens):
+            print("Renseignez les enseignants (%d restants) : " % (nb_ens-i))
+            while True : 
+                    login=raw_input("Login : ")
+                    if len(login) == 8 :
+                            break
+                    print("Login incorrect.")
+            cursor.execute("SELECT COUNT(*) FROM Enseignant WHERE login = '" +login+ "'")
+            count = cursor.fetchone()[0]
+            #Si le login existe
+            if count > 0 :
+                    cursor.execute("SELECT e.nom, e.prenom FROM Enseignant e WHERE e.login = '" +login+ "'")
+                    for row in cursor : 
+                            nom=row[0]
+                            prenom=row[1]
+            #Sinon, ajout dans la table Enseignant
+            else :
+                    while True :
+                            nom=raw_input("Nom : ")
+                            prenom=raw_input("Prénom : ")
+                            #Verifie si le nom/prenom contients des nombres
+                            if any(i.isdigit() for i in (nom+prenom)) == False :
+                                    break;
+                    cursor.execute("INSERT INTO Enseignant(login,nom,prenom) VALUES ('"+login+"','"+nom.title()+"','"+prenom.title()+"')")
+            tab_ens.append(login)
+    #liste_ens=",".join(tab_ens)
+    cursor = connection.cursor()
+    try :
+            cursor.execute("DECLARE osemestre REF typSemestre; ocategorie REF typCategorie; olicence REF typLicence; omotcle REF typMotCle; oetu REF typeEtu; oens REF typeEns; BEGIN SELECT REF(s) INTO osemestre FROM Semestre s WHERE s.annee='"+str(annee)+"' AND s.saison='"+saison+"'; SELECT REF(c) INTO ocategorie FROM Categorie c WHERE c.nom='"+categorie+"'; SELECT REF(l) INTO olicence FROM Licence l WHERE l.code='"+licence+"'; SELECT REF(m) INTO omotcle FROM MotCle m WHERE m.mot_cle='"+mot_cle+"'; SELECT REF(etu) INTO oetu FROM Etudiant etu WHERE etu.login='"+str(tab_etu[0])+"'; SELECT REF(ens) INTO oens FROM Enseignant ens WHERE ens.login='"+str(tab_ens[0])+"'; INSERT INTO Documents (idDoc,archivedoc, titre, date_pb, auteur, professeur, description, semestredoc, categorie, licencedoc, motCle) VALUES('"+str(iddoc)+"','N','"+titre+"',sysdate,listeEtu(refetu(oetu)),listeEns(refens(oens)),'"+description+"',osemestre,ocategorie,listeLicence(refLicence(olicence)),listeMotCle(refMotCle(omotcle))); END;")
+    except  cx_Oracle.DatabaseError as exc:
+            error = exc.args
+            print("Une erreur est survenue lors de l'insertion (Code d'erreur: %d)" % error.code)
+    finally :
+            cursor.close()        
+   
+    print("L'insertion à été réalisée correctement")
+    connection.commit()
 
 #fonction pour rechercher des documents par catégorie
 
@@ -650,7 +601,6 @@ while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
 
 			if action == 2 :
 				etat=1
-
 
 		if type == 2 :
 			exit()

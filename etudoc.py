@@ -285,18 +285,16 @@ def ajout_doc() :
                                         break;
                         cursor.execute("INSERT INTO Enseignant(login,nom,prenom) VALUES ('"+login+"','"+nom.title()+"','"+prenom.title()+"')")
                 tab_ens.append(login)
-        #cursor.close()
         #liste_ens=",".join(tab_ens)
-
-        cursor=connection.cursor()
+        cursor = connection.cursor()
         try :
-                cursor.callfunc("ajout_doc_sql",(iddoc,titre,description,saison,annee,categorie,licence,mot_cle,tab_etu[0],tab_ens[0]))
+                cursor.execute("DECLARE osemestre REF typSemestre; ocategorie REF typCategorie; olicence REF typLicence; omotcle REF typMotCle; oetu REF typeEtu; oens REF typeEns; BEGIN SELECT REF(s) INTO osemestre FROM Semestre s WHERE s.annee='"+str(annee)+"' AND s.saison='"+saison+"'; SELECT REF(c) INTO ocategorie FROM Categorie c WHERE c.nom='"+categorie+"'; SELECT REF(l) INTO olicence FROM Licence l WHERE l.code='"+licence+"'; SELECT REF(m) INTO omotcle FROM MotCle m WHERE m.mot_cle='"+mot_cle+"'; SELECT REF(etu) INTO oetu FROM Etudiant etu WHERE etu.login='"+str(tab_etu[0])+"'; SELECT REF(ens) INTO oens FROM Enseignant ens WHERE ens.login='"+str(tab_ens[0])+"'; INSERT INTO Documents (idDoc,archivedoc, titre, date_pb, auteur, professeur, description, semestredoc, categorie, licencedoc, motCle) VALUES('"+str(iddoc)+"','N','"+titre+"',sysdate,listeEtu(refetu(oetu)),listeEns(refens(oens)),'"+description+"',osemestre,ocategorie,listeLicence(refLicence(olicence)),listeMotCle(refMotCle(omotcle))); END;")
         except  cx_Oracle.DatabaseError as exc:
-                error, = exc.args
-                #print("Une erreur est survenue lors de l'insertion (Code d'erreur: %d)" % (error.code))
-                print(error.message)
+                error = exc.args
+                print("Une erreur est survenue lors de l'insertion (Code d'erreur: %d)" % error.code)
         finally :
-                cursor.close()
+                cursor.close()        
+       
         print("L'insertion à été réalisée correctement")
         connection.commit()
 
@@ -450,7 +448,7 @@ def menu_admin() :
 #fonction pour afficher les fonctions qu'un utilisateur CAS peut réaliser
 
 def menu_eleve() :
-        print("voici les différentes actions que vous pouvez réaliser : \n 0 - ajouter un document \n 1-rechercher un document \n 2-quitter le mode utilisateur")
+        print("Voici les différentes actions que vous pouvez réaliser : \n 0 - ajouter un document \n 1-rechercher un document \n 2-quitter le mode utilisateur")
 
         action=input()
 

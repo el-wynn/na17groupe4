@@ -290,12 +290,11 @@ def ajout_doc() :
     try :
             cursor.execute("DECLARE osemestre REF typSemestre; ocategorie REF typCategorie; olicence REF typLicence; omotcle REF typMotCle; oetu REF typeEtu; oens REF typeEns; BEGIN SELECT REF(s) INTO osemestre FROM Semestre s WHERE s.annee='"+str(annee)+"' AND s.saison='"+saison+"'; SELECT REF(c) INTO ocategorie FROM Categorie c WHERE c.nom='"+categorie+"'; SELECT REF(l) INTO olicence FROM Licence l WHERE l.code='"+licence+"'; SELECT REF(m) INTO omotcle FROM MotCle m WHERE m.mot_cle='"+mot_cle+"'; SELECT REF(etu) INTO oetu FROM Etudiant etu WHERE etu.login='"+str(tab_etu[0])+"'; SELECT REF(ens) INTO oens FROM Enseignant ens WHERE ens.login='"+str(tab_ens[0])+"'; INSERT INTO Documents (idDoc,archivedoc, titre, date_pb, auteur, professeur, description, semestredoc, categorie, licencedoc, motCle) VALUES('"+str(iddoc)+"','N','"+titre+"',sysdate,listeEtu(refetu(oetu)),listeEns(refens(oens)),'"+description+"',osemestre,ocategorie,listeLicence(refLicence(olicence)),listeMotCle(refMotCle(omotcle))); END;")
     except  cx_Oracle.DatabaseError as exc:
-            error = exc.args
+            error, = exc.args
             print("Une erreur est survenue lors de l'insertion (Code d'erreur: %d)" % error.code)
     finally :
-            cursor.close()        
-   
-    print("L'insertion à été réalisée correctement")
+            cursor.close()
+    		print("L'insertion à été réalisée correctement")
     connection.commit()
 
 #fonction pour rechercher des documents par catégorie
@@ -433,8 +432,8 @@ def menu_personne() :
         print("Vous êtes un : \n 0- administrateur \n 1- un élève/prof ... \n 2-vous voulez quitter")
         type=input()
         while type<0 or type>2:
-            print("L'utilisateur demandé n'existe pas, réessayez")
-            type=input()
+                print("L'utilisateur demandé n'exite pas, réessayez")
+                type=input()
 
         return type
 
@@ -528,74 +527,78 @@ etat = 1
 while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
         type=menu_personne()
         etat = 2
-        while etat == 2 : #etat 2 = on choisi un action a réaliser en fonction des fonctions qui nous sont proposées
+while etat == 2 : #etat 2 = on choisi un action a réaliser en fonction des fonctions qui nous sont proposées
 
-            if type == 0 : #partie admin
-                    action=menu_admin()
+        if type == 0 : #partie admin
+                action=menu_admin()
 
-                    #l'action demandée n'existe pas
-                    while action > 4:
-                            print("L'action demandée n'existe pas réessayez")
-                            action=menu_admin
+                #l'action demandée n'existe pas
+                while action > 4:
+                        print("L'action demandée n'existe pas réessayez")
+                        action=menu_admin
 
-                    #archive d'un document
-                    if action == 0 :
-                            archive_doc()
+                #archive d'un document
+                if action == 0 :
+                        archive_doc()
 
-                    #ajouter une licence
-                    if action == 1 :
-                            ajout_licence()
-                    #ajouter une categorie
-                    if action == 2 :
-                            ajout_categorie()
-                    #enlever un document de l'archive
-                    if action == 3 :
-                            retour_archive()
+                #ajouter une licence
+                if action == 1 :
+                        ajout_licence()
+                #ajouter une categorie
+                if action == 2 :
+                        ajout_categorie()
+                #enlever un document de l'archive
+                if action == 3 :
+                        retour_archive()
 
-                    if action == 4 :
-                            etat = 1
-
-
-            if type == 1 : #partie user CAS
-                    action=menu_eleve()
-                    if action == 0 :
-                            ajout_doc()
-
-
-                    if action == 1 :
-                            print("Vous souhaitez rechercher un document \n")
-                            while action<3 :
-                                    print("Vous souhaitez faire une recherche par : \n 0-categorie \n 1- mot clé \n 2 - nom de l'auteur \n 3 - semestre \n 4 - recherche combinée \n 5 - retour au menu élève")
-                                    recherche = input()
-                                    if recherche == 0 :
-                                            recherche_cat()
-
-                                    if recherche == 1:
-                                            #recherche par mot clé
-                                            recherche_mot_cle()
-
-                                    if recherche == 2 :
-                                    	#recherche par auteur
-                                            recherche_par_etu()
-
-
-                                    if recherche == 3 :
-                                    #recherche par semestre
-                                            recherche_semestre()
-
-                                    if recherche == 4 :
-                                    #recherche par semestre
-                                            recherche_combinee()
-
-                                    if recherche == 5 :
-                                            recherche = 6
-                                            action = 6
-                                            etat = 2
+                if action == 4 :
+                        etat = 1
 
 
 
-                    if action == 2 :
-                            etat=1
+        if type == 1 : #partie user CAS
+                action=menu_eleve()
+                if action == 0 :
 
-            if type == 2 :
-                    exit()
+                        ajout_doc()
+
+
+                if action == 1 :
+                        print("Vous souhaitez rechercher un document \n")
+                        while action<3 :
+                                print("Vous souhaitez faire une recherche par : \n 0-categorie \n 1- mot clé \n 2 - nom de l'auteur \n 3 - semestre \n 4 - recherche combinée \n 5 - retour au menu élève")
+                                recherche = input()
+                                if recherche == 0 :
+                                        recherche_cat()
+
+
+                                if recherche == 1:
+                                        #recherche par mot clé
+                                        recherche_mot_cle()
+
+
+                                if recherche == 2 :
+                                #recherche par auteur
+                                        recherche_par_etu()
+
+
+
+                                if recherche == 3 :
+                                #recherche par semestre
+                                        recherche_semestre()
+
+                                if recherche == 4 :
+                                #recherche par semestre
+                                        recherche_combinee()
+
+                                if recherche == 5 :
+                                        recherche = 6
+                                        action = 6
+                                        etat = 2
+
+
+                if action == 2 :
+                        etat=1
+
+        if type == 2 :
+                exit()

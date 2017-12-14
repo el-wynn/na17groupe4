@@ -433,8 +433,8 @@ def menu_personne() :
         print("Vous êtes un : \n 0- administrateur \n 1- un élève/prof ... \n 2-vous voulez quitter")
         type=input()
         while type<0 or type>2:
-                print("L'utilisateur demandé n'exite pas, réessayez")
-                type=input()
+            print("L'utilisateur demandé n'existe pas, réessayez")
+            type=input()
 
         return type
 
@@ -455,7 +455,7 @@ def menu_eleve() :
         print("L'action demandée n'existe pas réessayez")
         action=input()
 
-        return action
+    return action
 
 
 #fonction de recherche combinée
@@ -530,76 +530,72 @@ while etat == 1 : #etat 1 est l'état ou on choisi admin ou utilisateur cas
         etat = 2
         while etat == 2 : #etat 2 = on choisi un action a réaliser en fonction des fonctions qui nous sont proposées
 
-                if type == 0 : #partie admin
-                        action=menu_admin()
+            if type == 0 : #partie admin
+                    action=menu_admin()
 
-                        #l'action demandée n'existe pas
-                        while action > 4:
-                                print("L'action demandée n'existe pas réessayez")
-                                action=menu_admin
+                    #l'action demandée n'existe pas
+                    while action > 4:
+                            print("L'action demandée n'existe pas réessayez")
+                            action=menu_admin
 
-                        #archive d'un document
-                        if action == 0 :
-                                archive_doc()
+                    #archive d'un document
+                    if action == 0 :
+                            archive_doc()
 
-                        #ajouter une licence
-                        if action == 1 :
-                                ajout_licence()
-                        #ajouter une categorie
-                        if action == 2 :
-                                ajout_categorie()
-                        #enlever un document de l'archive
-                        if action == 3 :
-                                retour_archive()
+                    #ajouter une licence
+                    if action == 1 :
+                            ajout_licence()
+                    #ajouter une categorie
+                    if action == 2 :
+                            ajout_categorie()
+                    #enlever un document de l'archive
+                    if action == 3 :
+                            retour_archive()
 
-                        if action == 4 :
-                                etat = 1
-
-
-
-                if type == 1 : #partie user CAS
-                        action=menu_eleve()
-                        if action == 0 :
-
-                                ajout_doc()
+                    if action == 4 :
+                            etat = 1
 
 
-                        if action == 1 :
-                                print("Vous souhaitez rechercher un document \n")
-                                while action<3 :
-                                        print("Vous souhaitez faire une recherche par : \n 0-categorie \n 1- mot clé \n 2 - nom de l'auteur \n 3 - semestre \n 4 - recherche combinée \n 5 - retour au menu élève")
-                                        recherche = input()
-                                        if recherche == 0 :
-                                                recherche_cat()
+            if type == 1 : #partie user CAS
+                    action=menu_eleve()
+                    if action == 0 :
+                            ajout_doc()
 
 
-                                        if recherche == 1:
-                                                #recherche par mot clé
-                                                recherche_mot_cle()
+                    if action == 1 :
+                            print("Vous souhaitez rechercher un document \n")
+                            while action<3 :
+                                    print("Vous souhaitez faire une recherche par : \n 0-categorie \n 1- mot clé \n 2 - nom de l'auteur \n 3 - semestre \n 4 - recherche combinée \n 5 - retour au menu élève")
+                                    recherche = input()
+                                    if recherche == 0 :
+                                            recherche_cat()
+
+                                    if recherche == 1:
+                                            #recherche par mot clé
+                                            recherche_mot_cle()
+
+                                    if recherche == 2 :
+                                    	#recherche par auteur
+                                            recherche_par_etu()
 
 
-                                        if recherche == 2 :
-                                        #recherche par auteur
-                                                recherche_par_etu()
+                                    if recherche == 3 :
+                                    #recherche par semestre
+                                            recherche_semestre()
+
+                                    if recherche == 4 :
+                                    #recherche par semestre
+                                            recherche_combinee()
+
+                                    if recherche == 5 :
+                                            recherche = 6
+                                            action = 6
+                                            etat = 2
 
 
 
-                                        if recherche == 3 :
-                                        #recherche par semestre
-                                                recherche_semestre()
+                    if action == 2 :
+                            etat=1
 
-                                        if recherche == 4 :
-                                        #recherche par semestre
-                                                recherche_combinee()
-
-                                        if recherche == 5 :
-                                                recherche = 6
-                                                action = 6
-                                                etat = 2
-
-
-                        if action == 2 :
-                                etat=1
-
-                if type == 2 :
-                        exit()
+            if type == 2 :
+                    exit()

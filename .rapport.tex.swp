@@ -9,26 +9,80 @@
 \pagestyle{fancy}
 
 \title{\textbf{Etudoc}}
-\author{Noémie Galzin \\
-		Yueqing Jia \\
-		Elwynn \\
-		Océane Dubois}
+\author{Noémie GALZIN \\
+		Yueqing JIA \\
+		Elwynn NEGLOKPE\\
+		Océane DUBOIS}
 \date{}
 \begin{document}
 
 \maketitle
 \newpage
 \section{Présentation}
+La plate-forme Etudoc sert à centraliser tous les rapports réalisés dans le cadre d'UV. On peut y accéder par le CAS en tant qu'utilisateur normal ou en tant qu'administrateur. 
+En tant qu'utilisateur on peut y consulter les documents et faire de recherches, ainsi que déposer ses propres documents. 
+L'administrateur peut quant à lui archiver un document, ajouter une licence, ajouter une catégorie et retirer un document de l'archive.
 
+\section{Choix des technologies}
+Pour implémenter cette plate-forme nous avons choisi d'utiliser une base de données non-relationelles que nous avons implémenté sous Oracle. 
+
+Pour l'interface avec l'utilisateur nous avons choisi d'utiliser un programme python en ligne de commande car c'est la technologie qui semblait la plus simple à apprendre et dont l'interfacement avec la base de données était relativement facile.
+
+Le choix d'utiliser python 2 à été fait car python 2 étant plus ancien il y a plus de documentation et de tutoriels sur internet sachant qu'aucune personne du groupe n'avait codé en python au préalable. De plus python 2 était déjà installé par défaut sur certains ordinateurs des membres du groupe.
 
 \section{Fonctions implémentées}
 
+Comme dit précédement, on peut accéder au programme en tant qu'utilisateur ou en tant qu'administrateur.
+
+La redirection se ferra à partir du CAS, cependant comme notre application n'est pas reliée au CAS, lorsqu'on lance le programme python, on peut choisir d'y entrer soit en administrateur, soit en utilisateur.
+
 \subsection{Fonctions de l'administrateur}
 
-\subsection{Fonction de l'utilisateur}
-\subsubsection{ajouter un document}
-\subsubsection{rechercher un document}
+\subsubsection{Archiver un document}
 
+L'administrateur peut donc archiver un document. Pour cela, on affiche tous les documents non archivés et l'administrateur n'a plus qu'a choisir l'identifiant du document qu'il souhaite archiver.
+
+\subsubsection{Ajouter une licence}
+
+Pour ajouter une licence, on commence d'abord par afficher toutes les licences déjà existantes afin que l'administrateur sache quelles licences exitent déjà ou non. Puis il rentre le code de la licence et sa description. Si lors de l'insertion, on se rend compte que le tuple existe déjà dans la base de données, on affiche le message d'erreur suivant : "L'élément existe déjà dans la base de données".
+
+\subsubsection{Ajouter une Categorie}
+
+Pour ajouter une catégorie, on suit le même principe que pour l'ajout d'une licence. On commence par afficher toutes les catégories puis l'administrateur rentre la nouvelle catégorie souhaitée. Si elle existe déjà un message d'erreur s'affiche sinon elles est insérée dans la base de données.
+
+\subsubsection{Enlever un document de l'archive}
+
+Pour enlever un document de l'archive on procède de la même façon que pour archiver un document. On affiche tous les documents qui sont archivés, puis l'admin rentre l'identifiant du document qu'il souhaite retirer de l'archive. On met à jour alors la ligne correspondante de la base de données avec la valeur d'archivedoc à 'N'.
+
+\subsection{Fonction de l'utilisateur}
+
+L'utilisateur peut être un élève, un prof ou même un membre de l'administration. Il peut déposer des documents et consulter tous les documents non archivés qui sont sur la plate-forme.
+
+\subsubsection{Ajouter un document}
+
+Lors de l'ajout d'un document, l'utilisateur rentre succesivement tous les champs nécessaires à l'ajout d'un document. Pour l'identifiant du document on sélectionne l'identifiant maximum déjà présent dans la base de données et on lui ajoute 1. 
+On peut désigner plusieurs élèves et plusieurs professeurs comme auteurs et suiveurs du projet.
+
+\subsubsection{Voir toutes les informations d'un document}
+
+Cette fonction permet d'afficher toutes les informations d'un document. 
+On commence par sélectionner l'identifiant du document souhaité puis le programme affiche toutes les informations qu'il trouve dans la base de données concerntant le document
+
+
+\subsubsection{Rechercher un document}
+On peut donc rechercher un document. Tout d'abord nous avons implémenté les fonctions de recherche uniquement par catégorie, uniquement par mot clé, uniquement par semestre ou uniquement par auteur. Puis nous avons implémenté une fonction qui permet de faire une fonction de recherche qui permet de renvoyer le resultat d'une recherche ou on à rentré une catégorie, un mot clé et un semestre par exemple. Cette fonction fait l'union des 3 requête et renvoie donc les documents qui correspondent au mot clé, ou à la catégorie ou au semestre rentré. 
+
+\begin{itemize}
+\item Recherche par catégorie : La recherche par catégorie affiche toutes les catégories disponiples, puis lorsque l'utilisateur entre la catégorie choisie, il affiche tous les documents correspondants. On peut ensuite faire appel à la fonction permettant de voir toutes les informations d'un document à partir de son identifiant. 
+
+\item Recherche par mot clé : La recherche par mots-clés affiche tous les mots-clés disponiples, puis lorsque l'utilisateur entre le mot-clé choisie, il affiche tous les documents correspondants. On peut ensuite faire appel à la fonction permettant de voir toutes les informations d'un document à partir de son identifiant. 
+
+\item Recherche par semestre : Dans la recherche par semestre on demande à l'utilisateur de rentrer une saison (P ou A) on vérifie qu'il à rentré la saison correcte. Puis on lui demande de rentrer une année, on vérifie que celle-ci est comprise entre 1972 et l'année en cours. Si oui, on affiche tous les documents correspondant à la requête. Puis on peut afficher toutes les informations sur un document en précisant son identifiant. 
+
+\item Recherche par auteur : Dans la recherche par auteur, on propose d'abord de renter le nom de l'auteur souhaité, puis on affiche tous les étudiant ayant ce nom, on peut ensuite sélectionner son login, puis on affiche tous les document ou l'élève ayant ce login est un des auteurs
+
+\item Recherhe par catégorie ou par mot-clé ou par semestre : Comme expliqué précédement, dans cette fonction on peut choisir d'entrer plusieurs données (catégorie, mot-clé, semestre), la fonction retourne les documents correspondant à au moins une des données rentrées. 
+\end{itemize}
 
 \end{document}
 

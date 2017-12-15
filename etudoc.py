@@ -219,7 +219,8 @@ def ajout_doc() :
     count = cursor.fetchone()
     #On ajoute si le mot cle n'existe pas
     if count == 0 :
-            cursor.execute("INSERT INTO MotCle(mot_cle) VALUES('"+mot_cle+"')")
+            ajout_mot_cle(mot_cle)
+	  
 
     #Etudiants
     tab_etu = []
@@ -252,6 +253,7 @@ def ajout_doc() :
                                     break;
                     cursor.execute("INSERT INTO Etudiant(login,nom,prenom) VALUES ('"+login+"','"+nom.title()+"','"+prenom.title()+"')")
             tab_etu.append(login)
+	    connection.commit()
     #liste_etu=",".join(tab_etu)
 
     #Enseignants
@@ -291,14 +293,16 @@ def ajout_doc() :
             cursor.execute("DECLARE osemestre REF typSemestre; ocategorie REF typCategorie; olicence REF typLicence; omotcle REF typMotCle; oetu REF typeEtu; oens REF typeEns; BEGIN SELECT REF(s) INTO osemestre FROM Semestre s WHERE s.annee='"+str(annee)+"' AND s.saison='"+saison+"'; SELECT REF(c) INTO ocategorie FROM Categorie c WHERE c.nom='"+categorie+"'; SELECT REF(l) INTO olicence FROM Licence l WHERE l.code='"+licence+"'; SELECT REF(m) INTO omotcle FROM MotCle m WHERE m.mot_cle='"+mot_cle+"'; SELECT REF(etu) INTO oetu FROM Etudiant etu WHERE etu.login='"+str(tab_etu[0])+"'; SELECT REF(ens) INTO oens FROM Enseignant ens WHERE ens.login='"+str(tab_ens[0])+"'; INSERT INTO Documents (idDoc,archivedoc, titre, date_pb, auteur, professeur, description, semestredoc, categorie, licencedoc, motCle) VALUES('"+str(iddoc)+"','N','"+titre+"',sysdate,listeEtu(refetu(oetu)),listeEns(refens(oens)),'"+description+"',osemestre,ocategorie,listeLicence(refLicence(olicence)),listeMotCle(refMotCle(omotcle))); END;")
     except  cx_Oracle.DatabaseError as exc:
             error, = exc.args
-            #print("Une erreur est survenue lors de l'insertion (Code d'erreur: %d)" % error.code)
+            print("Une erreur est survenue lors de l'insertion (Code d'erreur: %d)" % error.code)
     finally :
             #for i in tab_etu
                     #cursor.execute("UPDATE Document SET auteur = "+listeEtu(refEtu(oetu)+")
             cursor.close()
             print("L'insertion à été réalisée correctement")
-            
-    connection.commit()
+            connection.commit()
+
+
+
 
 #fonction pour rechercher des documents par catégorie
 
@@ -381,6 +385,17 @@ def recherche_semestre() :
                 cursor.close()
 
 
+
+	
+def ajout_mot(mot_cle) :
+	cursor = connection.cursor()
+	cursor.execute("INSERT INTO MotCle(mot_cle) VALUES('"+mot_cle+"')")
+	cursor.close()
+        connection.commit()
+	print("ajout réussi")
+
+	
+
 def recherche_etu() :
         cursor = connection.cursor()
 
@@ -443,7 +458,7 @@ def menu_personne() :
 
 #fonction pour afficher les fonctions que l'admin peut réaliser
 def menu_admin() :
-        print("Voici les différentes actions que vous pouvez réaliser : \n 0- archiver un document \n 1- ajouter une licence \n 2- ajouter une categorie\n 3-retirer un document de l'archive \n 4-quitter le mode administrateur \n entrez le numéro de l'action que vous souhaitez réaliser")
+        print("Voici les différentes actions que vous pouvez réaliser : \n 0- archiver un document \n 1- ajouter une licence \n 2- ajouter une categorie\n 3-retirer un document de l'archive \n 4- ajouter un mot-clé\n5-quitter le mode administrateur \n entrez le numéro de l'action que vous souhaitez réaliser")
         action=input()
         return action
 
@@ -536,7 +551,7 @@ while etat == 2 : #etat 2 = on choisi un action a réaliser en fonction des fonc
                 action=menu_admin()
 
                 #l'action demandée n'existe pas
-                while action > 4:
+                while action > 5:
                         print("L'action demandée n'existe pas réessayez")
                         action=menu_admin
 
@@ -554,7 +569,11 @@ while etat == 2 : #etat 2 = on choisi un action a réaliser en fonction des fonc
                 if action == 3 :
                         retour_archive()
 
-                if action == 4 :
+		if action == 4:
+			mot=raw_input("Mot clé à ajouter \n")
+			ajout_mot(mot)
+
+                if action == 5 :
                         etat = 1
 
 
@@ -576,7 +595,7 @@ while etat == 2 : #etat 2 = on choisi un action a réaliser en fonction des fonc
 
 
                                 if recherche == 1:
-                                        #recherche par mot clé
+                                #recherche par mot clé
                                         recherche_mot_cle()
 
 
